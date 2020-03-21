@@ -1,0 +1,1 @@
+int split(char *string, char *dest[], char *delimitor);
