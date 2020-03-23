@@ -29,6 +29,26 @@ where:
 * **-S, --separate-dirs** – doesn't count the size of subdirectories;
 * **--max-depth=N** – limits the depth of subdirectories (default: infinite).
 
+### Exit codes
+
+* **0** - regular execution.
+* **1** - _args error_, error in the arguments:
+  * not including the -l flag;
+  * invalid block size;
+  * invalid depth.
+* **2** - _directory error_, error in the directories:
+  * permission denied;
+  * directory not existent;
+  * [etc](http://man7.org/linux/man-pages/man3/opendir.3.html).
+* **3** - _pipe error_, error creating pipes:
+  * limit of file descriptors reached;
+  * max memory allocated for pipes reached;
+  * [etc](http://man7.org/linux/man-pages/man2/pipe.2.html).
+* **4** - _fork error_, error forking processes:
+  * max allowed amount of threads reached;
+  * fork is not supported on this platform;
+  * [etc](http://man7.org/linux/man-pages/man2/fork.2.html).
+
 ## Authors
 
 * Márcio Duarte | [GitHub](https://github.com/ctrlMarcio) [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201909936)

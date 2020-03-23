@@ -3,31 +3,28 @@
 #include <stdio.h>
 
 #include "util.h"
+#include "simpledu.h"
+#include "error.h"
 
 // to help clarification
 #define TRUE 1
 #define FALSE 0
 
-int count_links = FALSE;   // bool - counts the same file multiple times
-char *path = ".";          // current directory "." is the default directory of "du"
-int all = FALSE;           // bool - include files
-int bytes = FALSE;         // bool - show in bytes instead of blocks
-int block_size = 1024;     // size of the blocks (in bytes), for visualization effects
-int dereference = FALSE;   // bool - follow symbolic links
-int separate_dirs = FALSE; // bool - do not include the size of a subdirectory in a directory
-int max_depth = -1;        // limit the depth of the directories (-1 for infinite)
+struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1};
 
 void readArgs(int argc, char *argv[], int first_arg);
 
 int main(int argc, char *argv[], char *argenv[])
 {
-    if (argc < 2 || (strcmp(argv[1], "--count-links") && strcmp(argv[1], "-l")))
+    readArgs(argc, argv, 1);
+
+    if (!flags.count_links)
     {
         printf("Usage: %s -l [path] [-a] [-b] [-B size] [-L] [-S] [--max-depth=N]\n", argv[0]);
-        exit(1);
+        exit(ARGS_ERROR);
     }
 
-    readArgs(argc, argv, 2); // two bc -l is required always
+    fun(&flags);
 }
 
 /**
@@ -39,88 +36,105 @@ int main(int argc, char *argv[], char *argenv[])
  */
 void readArgs(int argc, char *argv[], int first_arg)
 {
-    if (!strcmp(argv[1], "--count-links") || !strcmp(argv[1], "-l"))
-        count_links = TRUE;
-
     int arg = first_arg;
+
+    if (argc <= arg)
+        return;
+    if (!strcmp(argv[arg], "--count-links") || !strcmp(argv[arg], "-l"))
+    {
+        flags.count_links = TRUE;
+        readArgs(argc, argv, ++arg);
+        return;
+    }
 
     if (argc <= arg)
         return;
     if (!strcmp(argv[arg], "-a") || !strcmp(argv[arg], "--all"))
     {
-        all = TRUE;
-        arg++;
+        flags.all = TRUE;
+        readArgs(argc, argv, ++arg);
+        return;
     }
 
     if (argc <= arg)
         return;
     if (!strcmp(argv[arg], "-b") || !strcmp(argv[arg], "--bytes"))
     {
-        bytes = TRUE;
-        arg++;
+        flags.bytes = TRUE;
+        readArgs(argc, argv, ++arg);
+        return;
     }
-
-    char *tmp[10];
 
     if (argc <= arg)
         return;
     if (!strcmp(argv[arg], "-B"))
     {
-        block_size = atoi(argv[++arg]);
-        if (block_size == 0) // invalid value
+        flags.block_size = atoi(argv[++arg]);
+        if (flags.block_size == 0) // invalid value
         {
             printf("%s in an invalid block size.\n", argv[arg]);
-            exit(2);
+            exit(ARGS_ERROR);
         }
-        arg++;
-    } else if (split(argv[arg], tmp, "=") == 2 && !strcmp(tmp[0], "--block-size"))
+        readArgs(argc, argv, ++arg);
+        return;
+    }
+
+    char *tmp[10];
+    char *tempstr = calloc(50, sizeof(char));
+    strncpy(tempstr, argv[arg], strlen(argv[arg]));
+
+    if (argc <= arg)
+        return;
+    if (split(tempstr, tmp, "=") == 2 && !strcmp(tmp[0], "--block-size"))
     {
-        block_size = atoi(tmp[1]);
-        if (block_size == 0) // invalid value
+        flags.block_size = atoi(tmp[1]);
+        if (flags.block_size == 0) // invalid value
         {
             printf("%s in an invalid block size.\n", tmp[1]);
-            exit(2);
+            exit(ARGS_ERROR);
         }
-        arg++;
+        readArgs(argc, argv, ++arg);
+        return;
     }
 
     if (argc <= arg)
         return;
     if (!strcmp(argv[arg], "-L") || !strcmp(argv[arg], "--dereference"))
     {
-        dereference = TRUE;
-        arg++;
+        flags.dereference = TRUE;
+        readArgs(argc, argv, ++arg);
+        return;
     }
 
     if (argc <= arg)
         return;
     if (!strcmp(argv[arg], "-S") || !strcmp(argv[arg], "--separate-dirs"))
     {
-        separate_dirs = TRUE;
-        arg++;
+        flags.separate_dirs = TRUE;
+        readArgs(argc, argv, ++arg);
+        return;
     }
 
+    strncpy(tempstr, argv[arg], strlen(argv[arg]));
     if (argc <= arg)
         return;
-    if (split(argv[arg], tmp, "=") == 2 && !strcmp(tmp[0], "--max-depth"))
+    if (split(tempstr, tmp, "=") == 2 && !strcmp(tmp[0], "--max-depth"))
     {
-        max_depth = atoi(tmp[1]);
-        if (max_depth == 0) // invalid value
+        flags.max_depth = atoi(tmp[1]);
+        if (flags.max_depth == 0) // invalid value
         {
             printf("%s in an invalid depth.\n", tmp[1]);
-            exit(3);
+            exit(ARGS_ERROR);
         }
-        arg++;
+        readArgs(argc, argv, ++arg);
+        return;
     }
+
+    free(tempstr);
 
     if (argc <= arg)
         return;
-    if (arg != 2)
-    {
-        printf("Usage: %s -l [path] [-a] [-b] [-B size] [-L] [-S] [--max-depth=N]\n", argv[0]);
-        exit(1);
-    }
-
-    path = argv[arg];
-    readArgs(argc, argv, 3);
+    strcpy(flags.path, argv[arg]);
+    readArgs(argc, argv, ++arg);
+    return;
 }

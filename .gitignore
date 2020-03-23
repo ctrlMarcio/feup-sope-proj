@@ -1,2 +1,5 @@
 # Ignore bin files
-/bin
+**/bin
+
+# vs code file
+**/.vscode

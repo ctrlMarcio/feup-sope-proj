@@ -5,6 +5,7 @@
 
 /**
  * Splits a string into an array
+ * MODIFIES THE SOURCE STRING
  * E.g. after split("a,b,cd", arr, ","), arr = ["a","b","cd"];
  * 
  * @param string        string to split
