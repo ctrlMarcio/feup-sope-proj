@@ -11,6 +11,7 @@ struct flags
     int dereference;   // bool - follow symbolic links
     int separate_dirs; // bool - do not include the size of a subdirectory in a directory
     int max_depth;     // limit the depth of the directories (-1 for infinite)
+    int current_depth; // current depth of the search
 };
 
 int split(char *string, char *dest[], char *delimitor);

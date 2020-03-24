@@ -8,10 +8,12 @@
 
 #include "simpledu.h"
 #include "error.h"
+#include "logger.h"
 
 #define READ 0
 #define WRITE 1
-#define MAX_SIZE 4096
+#define MAX_SIZE 2048
+#define MAX_DIR_SIZE 4096
 #define TABULATION 8
 
 void fun(struct flags *flags)
@@ -27,6 +29,8 @@ void simpledu(struct flags *flags, int *old_fd)
     struct dirent *dirent;
     struct stat stat_entry;
 
+    char dirBuffer[MAX_DIR_SIZE] = "";
+
     DIR *dir;
 
     if ((dir = opendir(flags->path)) == NULL)
@@ -37,6 +41,8 @@ void simpledu(struct flags *flags, int *old_fd)
 
     while ((dirent = readdir(dir)) != NULL)
     {
+        entry_log(getpid(), CREATE, "TO-BE-DONE-EVENTUALLY");
+
         char file[MAX_SIZE];
         sprintf(file, "%s/%s", flags->path, dirent->d_name);
         lstat(file, &stat_entry);
@@ -45,13 +51,21 @@ void simpledu(struct flags *flags, int *old_fd)
         {
             if (!strcmp(dirent->d_name, ".."))
                 continue;
-            if (!strcmp(dirent->d_name, "."))
+            if (flags->current_depth == 1 && !strcmp(dirent->d_name, "."))
             {
                 char string[MAX_SIZE];
-                sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, flags->path); // size in bytes
-                write(old_fd[WRITE], string, strlen(string));
-                continue;
+                sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, dirent->d_name); // size in bytes
+                strcat(dirBuffer, string);
             }
+            if (!strcmp(dirent->d_name, "."))
+                continue;
+
+            char string[MAX_SIZE];
+            sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
+            strcat(dirBuffer, string);
+
+            if (flags->current_depth >= flags->max_depth && flags->max_depth > 0)
+                continue;
 
             pid_t pid = treatDir(old_fd, flags, dirent);
             if (pid == 0)
@@ -61,7 +75,8 @@ void simpledu(struct flags *flags, int *old_fd)
         {
             char string[MAX_SIZE];
             sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
-            write(old_fd[WRITE], string, strlen(string));
+
+            strcat(dirBuffer, string);
         }
         else if (S_ISLNK(stat_entry.st_mode))
         {
@@ -70,10 +85,14 @@ void simpledu(struct flags *flags, int *old_fd)
         }
     }
 
-    if (closedir(dir) == -1) {
+    if (closedir(dir) == -1)
+    {
         // TODO: error
         exit(DIR_ERROR);
     }
+
+    write(old_fd[WRITE], dirBuffer, strlen(dirBuffer));
+
     while (wait(NULL) != -1)
         ;
 }
@@ -100,6 +119,9 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
+
+        tmp_flags.current_depth++;
+
         simpledu(&tmp_flags, fd);
     }
     // parent just continues

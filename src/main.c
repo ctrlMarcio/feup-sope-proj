@@ -5,16 +5,19 @@
 #include "util.h"
 #include "simpledu.h"
 #include "error.h"
+#include "logger.h"
 
 // to help clarification
 #define TRUE 1
 #define FALSE 0
 
-struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1};
+#define LOG_FILENAME "LOG_FILENAME"
+
+struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1, 1};
 
 void readArgs(int argc, char *argv[], int first_arg);
 
-int main(int argc, char *argv[], char *argenv[])
+int main(int argc, char *argv[])
 {
     readArgs(argc, argv, 1);
 
@@ -23,6 +26,10 @@ int main(int argc, char *argv[], char *argenv[])
         printf("Usage: %s -l [path] [-a] [-b] [-B size] [-L] [-S] [--max-depth=N]\n", argv[0]);
         exit(ARGS_ERROR);
     }
+
+    char *log_env;
+    if ((log_env = getenv(LOG_FILENAME)))
+        strncpy(FILENAME, log_env, strlen(log_env));
 
     fun(&flags);
 }
