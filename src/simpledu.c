@@ -41,8 +41,6 @@ void simpledu(struct flags *flags, int *old_fd)
 
     while ((dirent = readdir(dir)) != NULL)
     {
-        entry_log(getpid(), CREATE, "TO-BE-DONE-EVENTUALLY");
-
         char file[MAX_SIZE];
         sprintf(file, "%s/%s", flags->path, dirent->d_name);
         lstat(file, &stat_entry);
@@ -123,6 +121,10 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
         tmp_flags.current_depth++;
 
         simpledu(&tmp_flags, fd);
+    }
+    else
+    {
+        entryLog(getpid(), CREATE, flags->line_args);
     }
     // parent just continues
     return pid;

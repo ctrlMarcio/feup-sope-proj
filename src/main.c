@@ -31,7 +31,24 @@ int main(int argc, char *argv[])
     if ((log_env = getenv(LOG_FILENAME)))
         strncpy(FILENAME, log_env, strlen(log_env));
 
+    char *line_args = (char*) malloc(sizeof(char) * 1024);
+
+    for (int i = 1; i < argc; ++i)
+    {
+        strcat(line_args, argv[i]);
+        if (i < argc - 1)
+            strcat(line_args, " ");
+    }
+
+    strcpy(flags.line_args, line_args);
+
+    setupLogger();
+
     fun(&flags);
+
+    free(line_args);
+
+    closeLogger();
 }
 
 /**

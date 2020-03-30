@@ -6,25 +6,32 @@
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
+#include "util.h"
 #include "logger.h"
 
 char FILENAME[] = "logfile.log";
 
-void entry_log(int pid, char *action, char *info)
+struct timespec START_TIME;
+
+int LOGGER_FD;
+
+void setupLogger()
 {
-    int fd = open(FILENAME, O_WRONLY | O_APPEND | O_CREAT);
+    LOGGER_FD = open(FILENAME, O_WRONLY | O_APPEND | O_CREAT);
 
-    time_t rawtime;
-    struct tm *timeinfo;
+    clock_gettime(CLOCK_MONOTONIC, &START_TIME);
+}
 
+void closeLogger()
+{
+    close(LOGGER_FD);
+}
+
+void entryLog(int pid, char *action, char *info)
+{
     char logentry[1024];
 
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
+    sprintf(logentry, "%.2f ms: PID %d. Action: %s. Additional info: %s\n", getElapsedTimeInMillis(START_TIME), pid, action, info);
 
-    sprintf(logentry, "instant - %-10d - %-11s - %s\n", pid, action, info);
-
-    write(fd, logentry, strlen(logentry));
-
-    close(fd);
+    write(LOGGER_FD, logentry, strlen(logentry));
 }

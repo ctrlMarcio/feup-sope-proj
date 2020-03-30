@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "util.h"
 
@@ -13,7 +14,8 @@
  * @param delimitor     delimitor of the string
  * @return the size of the array
  */
-int split(char *string, char *dest[], char *delimitor) {
+int split(char *string, char *dest[], char *delimitor)
+{
     char *word;
     int i = 0;
 
@@ -24,4 +26,18 @@ int split(char *string, char *dest[], char *delimitor) {
         dest[i++] = word;
 
     return i;
+}
+
+double getElapsedTimeInMillis(struct timespec start_time)
+{ 
+    double elapsed = 0;
+
+    struct timespec finish;
+
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+
+    elapsed = (finish.tv_sec - start_time.tv_sec) / 1000.0;
+    elapsed += (finish.tv_nsec - start_time.tv_nsec) / 1000000.0;
+
+    return elapsed;
 }

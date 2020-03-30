@@ -11,6 +11,10 @@
 
 char FILENAME[256];
 
-void entry_log(int pid, char *action, char *info);
+void entryLog(int pid, char *action, char *info);
+
+void setupLogger();
+
+void closeLogger();
 
 #endif
