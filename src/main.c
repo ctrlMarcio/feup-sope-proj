@@ -158,7 +158,7 @@ void readArgs(int argc, char *argv[], int first_arg)
 
     if (argc <= arg)
         return;
-    strcpy(flags.path, argv[arg]);
+    strcpy(flags.path, argv[arg]); // TODO: remove bars
     readArgs(argc, argv, ++arg);
     return;
 }

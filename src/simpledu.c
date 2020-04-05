@@ -29,7 +29,7 @@ void simpledu(struct flags *flags, int *old_fd)
     struct dirent *dirent;
     struct stat stat_entry;
 
-    char dirBuffer[MAX_DIR_SIZE] = "";
+    char dir_buffer[MAX_DIR_SIZE] = "";
 
     DIR *dir;
 
@@ -52,15 +52,15 @@ void simpledu(struct flags *flags, int *old_fd)
             if (flags->current_depth == 1 && !strcmp(dirent->d_name, "."))
             {
                 char string[MAX_SIZE];
-                sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, dirent->d_name); // size in bytes
-                strcat(dirBuffer, string);
+                sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, flags->path); // size in bytes
+                strcat(dir_buffer, string);
             }
             if (!strcmp(dirent->d_name, "."))
                 continue;
 
             char string[MAX_SIZE];
             sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
-            strcat(dirBuffer, string);
+            strcat(dir_buffer, string);
 
             if (flags->current_depth >= flags->max_depth && flags->max_depth > 0)
                 continue;
@@ -74,7 +74,7 @@ void simpledu(struct flags *flags, int *old_fd)
             char string[MAX_SIZE];
             sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
 
-            strcat(dirBuffer, string);
+            strcat(dir_buffer, string);
         }
         else if (S_ISLNK(stat_entry.st_mode))
         {
@@ -89,10 +89,18 @@ void simpledu(struct flags *flags, int *old_fd)
         exit(DIR_ERROR);
     }
 
-    write(old_fd[WRITE], dirBuffer, strlen(dirBuffer));
+    write(old_fd[WRITE], dir_buffer, strlen(dir_buffer));
+    entryLog(getpid(), RECV_PIPE, dir_buffer);
 
-    while (wait(NULL) != -1)
-        ;
+    int status;
+    int pid;
+
+    while ((pid = wait(&status)) > 0)
+    {
+        char line[32];
+        sprintf(line, "termination code %d", WEXITSTATUS(status));
+        entryLog(pid, EXIT, line);
+    }
 }
 
 int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
@@ -113,7 +121,6 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
     }
     else if (pid == 0)
     { // child
-        close(fd[READ]);
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
@@ -124,7 +131,7 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
     }
     else
     {
-        entryLog(getpid(), CREATE, flags->line_args);
+        entryLog(pid, CREATE, flags->line_args);
     }
     // parent just continues
     return pid;
