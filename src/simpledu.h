@@ -1,6 +1,7 @@
 #ifndef SIMPLEDU_H
 #define SIMPLEDU_H
 
+#include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
 

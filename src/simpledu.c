@@ -9,18 +9,18 @@
 #include "simpledu.h"
 #include "error.h"
 #include "logger.h"
+#include "ui.h"
 
 #define READ 0
 #define WRITE 1
 #define MAX_SIZE 2048
 #define MAX_DIR_SIZE 4096
-#define TABULATION 8
 
 void fun(struct flags *flags)
 {
     int fd[2];
     pipe(fd);
-    dup2(STDOUT_FILENO, fd[WRITE]);
+    //dup2(STDOUT_FILENO, fd[WRITE]);
     simpledu(flags, fd);
 }
 
@@ -32,10 +32,11 @@ void simpledu(struct flags *flags, int *old_fd)
     char dir_buffer[MAX_DIR_SIZE] = "";
 
     DIR *dir;
+    int total_size = 0;
 
     if ((dir = opendir(flags->path)) == NULL)
     {
-        // TODO: error
+        perror(flags->path);
         exit(DIR_ERROR);
     }
 
@@ -49,47 +50,36 @@ void simpledu(struct flags *flags, int *old_fd)
         {
             if (!strcmp(dirent->d_name, ".."))
                 continue;
-            if (flags->current_depth == 1 && !strcmp(dirent->d_name, "."))
-            {
-                char string[MAX_SIZE];
-                sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, flags->path); // size in bytes
-                strcat(dir_buffer, string);
-            }
             if (!strcmp(dirent->d_name, "."))
                 continue;
-
-            char string[MAX_SIZE];
-            sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
-            strcat(dir_buffer, string);
 
             if (flags->current_depth >= flags->max_depth && flags->max_depth > 0)
                 continue;
 
-            pid_t pid = treatDir(old_fd, flags, dirent);
-            if (pid == 0)
+            int pid = treatDir(old_fd, flags, dirent);
+            if (pid == -1)
                 return;
+            //total_size += pid;
         }
         else if (S_ISREG(stat_entry.st_mode))
         {
-            char string[MAX_SIZE];
-            sprintf(string, "%-*ld%s\n", TABULATION, stat_entry.st_size, file); // size in bytes
-
-            strcat(dir_buffer, string);
+            total_size += stat_entry.st_size;
+            printFile(file, stat_entry.st_size);
         }
         else if (S_ISLNK(stat_entry.st_mode))
         {
-            // TODO:
-            printf("Link\n");
+            // TODO change later
+            printFile(file, stat_entry.st_size);
         }
     }
 
     if (closedir(dir) == -1)
     {
-        // TODO: error
+        perror(flags->path);
         exit(DIR_ERROR);
     }
 
-    write(old_fd[WRITE], dir_buffer, strlen(dir_buffer));
+    //write(old_fd[WRITE], dir_buffer, strlen(dir_buffer));
     entryLog(getpid(), RECV_PIPE, dir_buffer);
 
     int status;
@@ -101,22 +91,26 @@ void simpledu(struct flags *flags, int *old_fd)
         sprintf(line, "termination code %d", WEXITSTATUS(status));
         entryLog(pid, EXIT, line);
     }
+
+    printDir(flags->path, total_size);
+    write(old_fd[WRITE], &total_size, sizeof(int));
 }
 
 int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
 {
-    int fd[2];
+    int totalSize = 0;
 
-    if (pipe(fd) < 0)
-    { /* TODO: error*/
+    int fd[2];
+    if (pipe(fd) == -1)
+    {
+        perror("Creating pipe on new directory");
         exit(PIPE_ERROR);
     }
 
-    dup2(old_fd[WRITE], fd[WRITE]);
-
     pid_t pid = fork();
     if (pid == -1)
-    { /* TODO: error */
+    {
+        perror("Forking");
         exit(FORK_ERROR);
     }
     else if (pid == 0)
@@ -128,11 +122,16 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
         tmp_flags.current_depth++;
 
         simpledu(&tmp_flags, fd);
+        return -1;
     }
     else
     {
         entryLog(pid, CREATE, flags->line_args);
+        int tmp;
+        while (wait(NULL) > 0) {
+            read(fd[READ], &tmp, sizeof(int));
+            totalSize += tmp;
+        }
     }
-    // parent just continues
-    return pid;
+    return totalSize;
 }

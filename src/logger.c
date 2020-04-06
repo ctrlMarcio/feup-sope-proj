@@ -17,7 +17,7 @@ int LOGGER_FD;
 
 void setupLogger()
 {
-    LOGGER_FD = open(FILENAME, O_WRONLY | O_APPEND | O_CREAT);
+    LOGGER_FD = open(FILENAME, O_WRONLY | O_APPEND | O_CREAT, 0777);
 
     clock_gettime(CLOCK_MONOTONIC, &START_TIME);
 }
