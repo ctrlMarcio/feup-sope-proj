@@ -9,7 +9,7 @@
  * @param name      - the name of the file
  * @param size      - the size of the file, in bytes
  */
-void printFile(char *name, long size);
+void printFile(char *name, struct flags *flags, long size);
 
 /**
  * Prints a directory according to the flags
@@ -17,4 +17,4 @@ void printFile(char *name, long size);
  * @param name      - the name of the directory
  * @param size      - the total size of the directory, in bytes
  */
-void printDir(char *name, long size);
+void printDir(char *name, struct flags *flags, long size);

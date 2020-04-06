@@ -9,6 +9,6 @@
 
 void fun(struct flags *flags);
 void simpledu(struct flags *flags, int *fd);
-int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent);
+int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry);
 
 #endif

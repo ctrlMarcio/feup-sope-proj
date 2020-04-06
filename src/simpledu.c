@@ -20,7 +20,6 @@ void fun(struct flags *flags)
 {
     int fd[2];
     pipe(fd);
-    //dup2(STDOUT_FILENO, fd[WRITE]);
     simpledu(flags, fd);
 }
 
@@ -48,28 +47,35 @@ void simpledu(struct flags *flags, int *old_fd)
 
         if (S_ISDIR(stat_entry.st_mode))
         {
+
             if (!strcmp(dirent->d_name, ".."))
                 continue;
-            if (!strcmp(dirent->d_name, "."))
-                continue;
 
-            if (flags->current_depth >= flags->max_depth && flags->max_depth > 0)
+            if (!strcmp(dirent->d_name, ".")) {
+                total_size += stat_entry.st_size;
                 continue;
+            }
 
-            int pid = treatDir(old_fd, flags, dirent);
-            if (pid == -1)
-                return;
-            //total_size += pid;
+            if (flags->separate_dirs && flags->current_depth > flags->max_depth && flags->max_depth > 0) {
+                continue;
+            }
+    
+            int dir_size = treatDir(old_fd, flags, dirent, &stat_entry);
+            if (dir_size == -1)
+                exit(0);
+            total_size += dir_size;
         }
         else if (S_ISREG(stat_entry.st_mode))
         {
             total_size += stat_entry.st_size;
-            printFile(file, stat_entry.st_size);
+            if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
+                printFile(file, flags, stat_entry.st_size);
         }
         else if (S_ISLNK(stat_entry.st_mode))
         {
             // TODO change later
-            printFile(file, stat_entry.st_size);
+            if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
+                printFile(file, flags, stat_entry.st_size);
         }
     }
 
@@ -79,7 +85,6 @@ void simpledu(struct flags *flags, int *old_fd)
         exit(DIR_ERROR);
     }
 
-    //write(old_fd[WRITE], dir_buffer, strlen(dir_buffer));
     entryLog(getpid(), RECV_PIPE, dir_buffer);
 
     int status;
@@ -92,13 +97,15 @@ void simpledu(struct flags *flags, int *old_fd)
         entryLog(pid, EXIT, line);
     }
 
-    printDir(flags->path, total_size);
+    if (!(flags->current_depth - 1 > flags->max_depth && flags->max_depth > 0))
+        printDir(flags->path, flags, total_size);
+        
     write(old_fd[WRITE], &total_size, sizeof(int));
 }
 
-int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
+int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry)
 {
-    int totalSize = 0;
+    int total_size = 0;
 
     int fd[2];
     if (pipe(fd) == -1)
@@ -130,8 +137,8 @@ int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent)
         int tmp;
         while (wait(NULL) > 0) {
             read(fd[READ], &tmp, sizeof(int));
-            totalSize += tmp;
+            total_size += tmp;
         }
     }
-    return totalSize;
+    return total_size;
 }
