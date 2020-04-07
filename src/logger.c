@@ -26,8 +26,8 @@ void setupLogger()
     struct tm *local = localtime(&now);
 
     char tmp[MAX_HEADER_SIZE];
-    sprintf(tmp, "Program executed at %2d:%2d, %d/%d/%d\n", local->tm_hour, local->tm_min, local->tm_mday, local->tm_mon + 1, local->tm_year + 1900);
-    //write(LOGGER_FD, tmp, strlen(tmp));
+    sprintf(tmp, "Program executed at %02d:%02d, %02d/%02d/%04d\n", local->tm_hour, local->tm_min, local->tm_mday, local->tm_mon + 1, local->tm_year + 1900);
+    write(LOGGER_FD, tmp, strlen(tmp));
 
     clock_gettime(CLOCK_MONOTONIC, &START_TIME);
 }
@@ -41,7 +41,7 @@ void entryLog(int pid, char *action, char *info)
 {
     char logentry[1024];
 
-    sprintf(logentry, "%.2f ms: PID %d. Action: %s. Additional info: %s\n", getElapsedTimeInMillis(START_TIME), pid, action, info);
+    sprintf(logentry, "%.2f ms: PID %08d. Action: %s. Additional info: %s\n", getElapsedTimeInMillis(START_TIME), pid, action, info);
 
-    //write(LOGGER_FD, logentry, strlen(logentry));
+    write(LOGGER_FD, logentry, strlen(logentry));
 }

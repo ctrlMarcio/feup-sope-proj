@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <time.h>
+
 struct flags
 {
     int count_links;        // bool - counts the same file multiple times
@@ -15,8 +17,34 @@ struct flags
     char line_args[1024];   // the arguments
 };
 
+/**
+ * Splits a string into an array
+ * MODIFIES THE SOURCE STRING
+ * E.g. after split("a,b,cd", arr, ","), arr = ["a","b","cd"];
+ * 
+ * @param string            string to split
+ * @param dest              array to split into
+ * @param delimitor         delimitor of the string
+ * @return the size of the array
+ */
 int split(char *string, char *dest[], char *delimitor);
 
-double getElapsedTimeInMillis();
+/**
+ * Removes any amount of a given character after a given string, copying the result to another one
+ * 
+ * @param c                 the character to remove
+ * @param str               the original string
+ * @param out               the string which will be changed with the final result
+ * @return                  the size of the new string
+ */
+int remove_after(char c, const char *str, char *out);
+
+/**
+ * Gets the total elapsed time in milliseconds since a given time
+ * 
+ * @param start_time        the start time
+ * @return                  smth like current_time - start_time in millisconds with precision up to nanoseconds
+ */
+double getElapsedTimeInMillis(struct timespec start_time);
 
 #endif

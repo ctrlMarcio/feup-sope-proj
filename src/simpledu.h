@@ -7,8 +7,11 @@
 
 #include "util.h"
 
-void fun(struct flags *flags);
-void simpledu(struct flags *flags, int *fd);
-int treatDir(int *old_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry);
+/**
+ * Creates a pipe and runs
+ * 
+ * @param flags
+ */
+void run(struct flags *flags);
 
 #endif

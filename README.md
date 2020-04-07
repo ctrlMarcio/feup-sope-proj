@@ -49,10 +49,37 @@ where:
   * fork is not supported on this platform;
   * [etc](http://man7.org/linux/man-pages/man2/fork.2.html).
 
+### Log file
+
+A log file is always created wih the information described below. For that, the program searches for a environment variable named *LOG_FILENAME* with the wanted location and respective name. The default log, when there's no such variable, is *./logfile.log*
+
+For each execution, a header is written with the following structure:
+> Program executed at HH:mm, DD/MM/YYYY
+
+Each line of the log follows the following structure:
+> instant – pid – action – info
+
+with:
+
+* **instant**: time elapsed after the beginning of the execution;
+* **pid**    : the ID of the process that logged;
+* **action** : description of the type of log (CREATE, EXIT, etc);
+* **info**   : additional information.
+
+| **action**  | description                      | **info**                                                     |
+| ----------- | -------------------------------- | ------------------------------------------------------------ |
+| CREATE      | creation of a process            | the command line args                                        |
+| EXIT        | termination of a process         | the exit status                                              |
+| RECV_SIGNAL | reception of a signal            | the received signal (e.g. SIGINT)                            |
+| SEND_SIGNAL | sending of a signal              | the sent signal, followed by the pid of the process that will receive it |
+| RECV_PIPE   | reading from a pipe              | the received message                                         |
+| SEND_PIPE   | writing on a pipe                | the written message                                          |
+| ENTRY       | analysing of a file or directory | the number of bytes, followed by its whole path              |
+
 ## Authors
 
-* Márcio Duarte | [GitHub](https://github.com/ctrlMarcio) [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201909936)
-* Luís Tavares | [GitHub](https://github.com/luist18) [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201809679)
+* Márcio Duarte | [GitHub](https://github.com/ctrlMarcio) | [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201909936)
+* Luís Tavares | [GitHub](https://github.com/luist18)  | [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201809679)
 
 ## License
 

@@ -11,15 +11,36 @@
 #define TRUE 1
 #define FALSE 0
 
-#define LOG_FILENAME "LOG_FILENAME"
+#define LOG_FILENAME_ENV "LOG_FILENAME"
 
 struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1, 1};
 
-void readArgs(int argc, char *argv[], int first_arg);
+char *readArgs(int argc, char *argv[]);
+void readCmd(int argc, char *argv[], int first_arg);
 
 int main(int argc, char *argv[])
 {
-    readArgs(argc, argv, 1);
+    char *line_args = readArgs(argc, argv);
+
+    setupLogger();
+
+    run(&flags);
+
+    closeLogger();
+
+    free(line_args);
+}
+
+/**
+ * Reads the args and environment variables, filling the respective flags
+ * 
+ * @param argc
+ * @param argv
+ * @return              a string with all the args to free later
+ */
+char *readArgs(int argc, char *argv[])
+{
+    readCmd(argc, argv, 1);
 
     if (!flags.count_links)
     {
@@ -28,10 +49,10 @@ int main(int argc, char *argv[])
     }
 
     char *log_env;
-    if ((log_env = getenv(LOG_FILENAME)))
+    if ((log_env = getenv(LOG_FILENAME_ENV)))
         strncpy(FILENAME, log_env, strlen(log_env));
 
-    char *line_args = (char*) malloc(sizeof(char) * 1024);
+    char *line_args = (char *)malloc(sizeof(char) * 1024);
 
     for (int i = 1; i < argc; ++i)
     {
@@ -42,13 +63,7 @@ int main(int argc, char *argv[])
 
     strcpy(flags.line_args, line_args);
 
-    setupLogger();
-
-    fun(&flags);
-
-    free(line_args);
-
-    closeLogger();
+    return line_args;
 }
 
 /**
@@ -58,7 +73,7 @@ int main(int argc, char *argv[])
  * @param argv          the arguments
  * @param first_arg     the position of the first argument to read
  */
-void readArgs(int argc, char *argv[], int first_arg)
+void readCmd(int argc, char *argv[], int first_arg)
 {
     int arg = first_arg;
 
@@ -67,7 +82,7 @@ void readArgs(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "--count-links") || !strcmp(argv[arg], "-l"))
     {
         flags.count_links = TRUE;
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -76,7 +91,7 @@ void readArgs(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "-a") || !strcmp(argv[arg], "--all"))
     {
         flags.all = TRUE;
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -85,7 +100,7 @@ void readArgs(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "-b") || !strcmp(argv[arg], "--bytes"))
     {
         flags.bytes = TRUE;
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -99,7 +114,7 @@ void readArgs(int argc, char *argv[], int first_arg)
             printf("%s in an invalid block size.\n", argv[arg]);
             exit(ARGS_ERROR);
         }
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -117,7 +132,7 @@ void readArgs(int argc, char *argv[], int first_arg)
             printf("%s in an invalid block size.\n", tmp[1]);
             exit(ARGS_ERROR);
         }
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -126,7 +141,7 @@ void readArgs(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "-L") || !strcmp(argv[arg], "--dereference"))
     {
         flags.dereference = TRUE;
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -135,7 +150,7 @@ void readArgs(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "-S") || !strcmp(argv[arg], "--separate-dirs"))
     {
         flags.separate_dirs = TRUE;
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -150,7 +165,7 @@ void readArgs(int argc, char *argv[], int first_arg)
             printf("%s in an invalid depth.\n", tmp[1]);
             exit(ARGS_ERROR);
         }
-        readArgs(argc, argv, ++arg);
+        readCmd(argc, argv, ++arg);
         return;
     }
 
@@ -158,7 +173,7 @@ void readArgs(int argc, char *argv[], int first_arg)
 
     if (argc <= arg)
         return;
-    strcpy(flags.path, argv[arg]); // TODO: remove bars
-    readArgs(argc, argv, ++arg);
+    remove_after('/', argv[arg], flags.path);
+    readCmd(argc, argv, ++arg);
     return;
 }
