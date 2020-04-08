@@ -23,4 +23,13 @@ void printFile(char *name, struct flags *flags, long size);
  */
 void printDir(char *name, struct flags *flags, long size);
 
+/**
+ * Prints a directory according to the flags
+ * 
+ * @param name      the name of the directory
+ * @param flags     the executable's flags
+ * @param size      the total size of the directory, in bytes
+ */
+void printLink(char *name, struct flags *flags, long size);
+
 #endif

@@ -18,7 +18,8 @@
 #define MAX_DIR_NAME_SIZE 512
 
 void simpledu(struct flags *flags, int *fd);
-pid_t treatDir(int *old_fd, int *new_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry);
+pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent);
+pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *line, int *total_size);
 void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *total_size);
 
 void run(struct flags *flags)
@@ -78,7 +79,7 @@ void simpledu(struct flags *flags, int *old_fd)
             }
 
             // gets the size of the subdirectory recursively
-            pid_t pid = treatDir(old_fd, new_fd, flags, dirent, &stat_entry);
+            pid_t pid = treatDir(new_fd, flags, dirent);
             if (pid == 0) // treatDir returns 0 if the thread is the child, its size is written to a pipe instead
                 exit(0);
         }
@@ -100,21 +101,13 @@ void simpledu(struct flags *flags, int *old_fd)
             }
             else
             {
-                // Get the actual path of the link
-                char linkpath_buffer[MAX_DIR_NAME_SIZE];
-                int linkpath_bytes = readlink(file, linkpath_buffer, MAX_DIR_NAME_SIZE);
+                if (contains((int) stat_entry.st_ino, flags->inodes_read, flags->inodes_read_size)) exit(0);
 
-                struct flags tmp_flags = *flags;
-                strncpy(tmp_flags.link_path, tmp_flags.path, strlen(tmp_flags.path));
-                strcat(tmp_flags.link_path, "/");
-                strcat(tmp_flags.link_path, dirent->d_name);
-                strncpy(tmp_flags.path, linkpath_buffer, linkpath_bytes);
+                flags->inodes_read[flags->inodes_read_size++] = stat_entry.st_ino;
 
-                tmp_flags.linked = 1;
-
-                tmp_flags.current_depth++;
-
-                simpledu(&tmp_flags, new_fd);
+                pid_t pid = treatLink(new_fd, flags, dirent, file, &total_size);
+                if (pid == 0) // treatDir returns 0 if the thread is the child, its size is written to a pipe instead
+                    exit(0);
             }
         }
     }
@@ -128,7 +121,7 @@ void simpledu(struct flags *flags, int *old_fd)
  *
  * @return      the process id (will return two)
  */
-pid_t treatDir(int *old_fd, int *new_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry)
+pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
 {
     pid_t pid = fork();
     if (pid == -1)
@@ -160,6 +153,62 @@ pid_t treatDir(int *old_fd, int *new_fd, struct flags *flags, struct dirent *dir
             // TODO log EXIT
             total_size += tmp;
         }*/
+    }
+
+    return pid;
+}
+
+/**
+ * Creates a new process and runs the simpledu in it
+ *
+ * @return      the process id (will return two)
+ */
+pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *file, int *total_size)
+{
+    char linkpath_buffer[MAX_DIR_NAME_SIZE];
+    int linkpath_bytes = readlink(file, linkpath_buffer, MAX_DIR_NAME_SIZE);
+
+    struct flags tmp_flags = *flags;
+    strncpy(tmp_flags.link_path, tmp_flags.path, strlen(tmp_flags.path));
+    strcat(tmp_flags.link_path, "/");
+    strcat(tmp_flags.link_path, dirent->d_name);
+    strncpy(tmp_flags.path, linkpath_buffer, linkpath_bytes);
+
+    struct stat stat_entry;
+
+    char line[1024];
+
+    sprintf(line, "%s/%s", flags->path, tmp_flags.path);
+
+    lstat(line, &stat_entry);
+
+    if (S_ISREG(stat_entry.st_mode)) // when the entry is a file
+    {
+        *total_size += stat_entry.st_size;
+        if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
+        {
+            printLink(file, &tmp_flags, stat_entry.st_size);
+        }
+        return getpid();
+    }
+
+    tmp_flags.linked = 1;
+
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        perror("Forking");
+        exit(FORK_ERROR);
+    }
+    else if (pid == 0)
+    { // child enters inside the new directory
+        tmp_flags.current_depth++;
+
+        simpledu(&tmp_flags, new_fd);
+    }
+    else
+    { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
+        entryLog(pid, CREATE, flags->line_args);
     }
 
     return pid;

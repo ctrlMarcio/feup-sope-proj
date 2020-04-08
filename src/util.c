@@ -46,7 +46,7 @@ int remove_after(char c, const char *str, char *out)
 }
 
 double getElapsedTimeInMillis(struct timespec start_time)
-{ 
+{
     double elapsed = 0;
 
     struct timespec finish;
@@ -57,4 +57,13 @@ double getElapsedTimeInMillis(struct timespec start_time)
     elapsed += (finish.tv_nsec - start_time.tv_nsec) / 1000000.0;
 
     return elapsed;
+}
+
+int contains(int element, int *vec, int size)
+{
+    for (int i = 0; i < size; ++i)
+        if (vec[i] == element)
+            return 1;
+
+    return 0;
 }

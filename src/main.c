@@ -13,7 +13,7 @@
 
 #define LOG_FILENAME_ENV "LOG_FILENAME"
 
-struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1, 1, "", FALSE, ""};
+struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1, 1, "", FALSE, "", {0}, 0};
 
 char *readArgs(int argc, char *argv[]);
 void readCmd(int argc, char *argv[], int first_arg);
