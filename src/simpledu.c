@@ -15,10 +15,11 @@
 #define WRITE 1
 #define MAX_SIZE 2048
 #define MAX_DIR_SIZE 4096
+#define MAX_DIR_NAME_SIZE 512
 
 void simpledu(struct flags *flags, int *fd);
 pid_t treatDir(int *old_fd, int *new_fd, struct flags *flags, struct dirent *dirent, struct stat *stat_entry);
-void closeDir(int *old_fd, int *new_fd, DIR * dir, struct flags *flags, int *total_size);
+void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *total_size);
 
 void run(struct flags *flags)
 {
@@ -81,24 +82,45 @@ void simpledu(struct flags *flags, int *old_fd)
             if (pid == 0) // treatDir returns 0 if the thread is the child, its size is written to a pipe instead
                 exit(0);
         }
-        else if (S_ISREG(stat_entry.st_mode)) // when the entry is a subdirectory
+        else if (S_ISREG(stat_entry.st_mode)) // when the entry is a file
         {
             // updates the size and prints it if the max depth was not reached already
             total_size += stat_entry.st_size;
             if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
-                printFile(file, flags, stat_entry.st_size);
+                printFile(dirent->d_name, flags, stat_entry.st_size);
         }
-        else if (S_ISLNK(stat_entry.st_mode)) // when the entry is a subdirectory
+        else if (S_ISLNK(stat_entry.st_mode)) // when the entry is a link
         {
-            total_size += stat_entry.st_size;
-            // TODO treat links here
-            if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
-                printFile(file, flags, stat_entry.st_size);
+            // If the links flag is off the link must be treated as a file
+            if (!flags->dereference)
+            {
+                total_size += stat_entry.st_size;
+                if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
+                    printFile(dirent->d_name, flags, stat_entry.st_size);
+            }
+            else
+            {
+                // Get the actual path of the link
+                char linkpath_buffer[MAX_DIR_NAME_SIZE];
+                int linkpath_bytes = readlink(file, linkpath_buffer, MAX_DIR_NAME_SIZE);
+
+                struct flags tmp_flags = *flags;
+                strncpy(tmp_flags.link_path, tmp_flags.path, strlen(tmp_flags.path));
+                strcat(tmp_flags.link_path, "/");
+                strcat(tmp_flags.link_path, dirent->d_name);
+                strncpy(tmp_flags.path, linkpath_buffer, linkpath_bytes);
+
+                tmp_flags.linked = 1;
+
+                tmp_flags.current_depth++;
+
+                simpledu(&tmp_flags, new_fd);
+            }
         }
     }
 
     // closes the directory and executes complementar operations (e.g. writing to pipe and console)
-    closeDir( old_fd, new_fd, dir, flags, &total_size);
+    closeDir(old_fd, new_fd, dir, flags, &total_size);
 }
 
 /**
@@ -119,6 +141,9 @@ pid_t treatDir(int *old_fd, int *new_fd, struct flags *flags, struct dirent *dir
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
+
+        strcat(tmp_flags.link_path, "/");
+        strcat(tmp_flags.link_path, dirent->d_name);
 
         tmp_flags.current_depth++;
 

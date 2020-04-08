@@ -15,6 +15,8 @@ struct flags
     int max_depth;          // limit the depth of the directories (-1 for infinite)
     int current_depth;      // current depth of the search
     char line_args[1024];   // the arguments
+    int linked;             // bool - content is in a link or not
+    char link_path[512];    // the path of the link
 };
 
 /**
