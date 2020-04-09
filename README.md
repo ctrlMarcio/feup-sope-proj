@@ -1,26 +1,25 @@
 # feup-sope-proj
-
-![Ubuntu version](https://img.shields.io/badge/Ubuntu-18.04.02%20LTS-red)
-![GCC version](https://img.shields.io/badge/gcc-7.4.0-green)
-![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
+![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
 
 Resolution proposal of the project from the course unit Operating Systems.
 
-Development of _simpledu_, a tool to summarize the use of disk space in a file or directory. In the case of a directory, the information must include files and subdirectories that are contained therein.
+The goal is to make a **C** program based to do the exactly same thing as the `du` command of the Unix Shell, using the Unix API for C.
 
-## Instalation
+## Files
 
-Run _make_ inside the root of the repo (where makefile lies).
-The binary file will be placed inside /bin
+### Source files
+The source files are located in the src/ folder. The main function is inside the `main.c` file and the most important functions are inside the `simpledu.c` file. Apart from those files, there are some additional files that contain some functions that are useful for the main algorithm but not directly related to the problem. 
 
-## Usage
+### Compiling
+There is a make file in order to compile the program properly. Run `make` in the root directory of the repository and a binary ouput file is placed inside a bin/ folder in the repository root.
 
+## Usage and running
+The usage of the program is similar to the `du` usage, with some tweaks.
 ```bash
-simpledu -l [path] [-a] [-b] [-B size] [-L] [-S] [--max-depth=N]
+simpledu -l [OPTIONS]
 ```
 
-where:
-
+### Options
 * **-l, --count-links** – allows the contabilization of the same file multiple times;
 * **-a, --all** - shows also files information;
 * **-b, --bytes** – shows the real number of bytes, instead of blocks;
@@ -28,9 +27,9 @@ where:
 * **-L, --dereference** – follows symbolic links;
 * **-S, --separate-dirs** – doesn't count the size of subdirectories;
 * **--max-depth=N** – limits the depth of subdirectories (default: infinite).
+>**Note:** the use of **-l** is mandatory and must be immediately after the program name.
 
 ### Exit codes
-
 * **0** - regular execution.
 * **1** - _args error_, error in the arguments:
   * not including the -l flag;
@@ -50,8 +49,7 @@ where:
   * [etc](http://man7.org/linux/man-pages/man2/fork.2.html).
 
 ### Log file
-
-A log file is always created wih the information described below. For that, the program searches for a environment variable named *LOG_FILENAME* with the wanted location and respective name. The default log, when there's no such variable, is *./logfile.log*
+The operations done while the program is running are reported in a log file. The log file is created with the name of the environment variable named `LOG_FILENAME`, or the default name 'logfile.log'.
 
 For each execution, a header is written with the following structure:
 > Program executed at HH:mm, DD/MM/YYYY
@@ -66,7 +64,7 @@ with:
 * **action** : description of the type of log (CREATE, EXIT, etc);
 * **info**   : additional information.
 
-| **action**  | description                      | **info**                                                     |
+| **Action**  | Description                      | **Info**                                                     |
 | ----------- | -------------------------------- | ------------------------------------------------------------ |
 | CREATE      | creation of a process            | the command line args                                        |
 | EXIT        | termination of a process         | the exit status                                              |
@@ -76,15 +74,29 @@ with:
 | SEND_PIPE   | writing on a pipe                | the written message                                          |
 | ENTRY       | analysing of a file or directory | the number of bytes, followed by its whole path              |
 
+## Features
+
+| **Feature** | Status | Additional info |
+| -------------- | :--------: |------------|
+| Argument reading and processing | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen)| N/a |
+| Different exit code for each error | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a |
+| Dereference links | ![https://img.shields.io/badge/great-%20-yellowgreen](https://img.shields.io/badge/great-%20-yellowgreen) | Not working if a loop occurs|
+| Specify the max depth of the search| ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
+| Directory and file size communication with pipes| ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
+| Directory handling with different a processes | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
+| Show all files and directories (option -a) | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a |
+| Signal handling | ![https://img.shields.io/badge/ok-%20-yellow](https://img.shields.io/badge/ok-%20-yellow) |N/a|
+| Log information | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) |N/a|
+| Different size according to block size or bytes | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) |N/a|
+
 ## Authors
 
 * Márcio Duarte | [GitHub](https://github.com/ctrlMarcio) | [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201909936)
 * Luís Tavares | [GitHub](https://github.com/luist18)  | [FEUP](https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201809679)
 
-## License
+### License
 
 [MIT](https://opensource.org/licenses/MIT)
 
-## Project Status
-
-Currently work in progress, first release at 10/04/2020
+### Disclaimer
+This repository contains the solution proposed by the authors and might contain errors as well as lack of efficiency.
