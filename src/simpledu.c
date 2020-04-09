@@ -23,11 +23,8 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent);
 pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *line, int *total_size);
 void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *total_size);
 
-pid_t first;
-
 void run(struct flags *flags)
 {
-    first = getpid();
     int fd[2];
     pipe(fd);
     setupParentHandlers();
@@ -129,9 +126,6 @@ void simpledu(struct flags *flags, int *old_fd)
  */
 pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
 {
-    // supposed to be only on the children but, applying it after the fork, would let some signals escape between the fork and the calling of this
-    setupProcessHandlers();
-
     pid_t pid = fork();
     if (pid == -1)
     {
@@ -140,6 +134,13 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     }
     else if (pid == 0)
     { // child enters inside the new directory
+        setupProcessHandlers(); // sets the current handlers
+
+        // sets the children group if it is not set already
+        if (!childrenpg)
+            childrenpg = getpid();
+
+        // builds new path
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
@@ -152,10 +153,8 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
         simpledu(&tmp_flags, new_fd);
     }
     else
-    {   // parent waits for child to end, reads its size from the new pipe, and updates the total_size
-        // if it is the first process, then handle the signals as the parent
-        if (getpid() == first)
-            setupParentHandlers();
+    { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
+        setChildrenGroup(pid);
 
         entryLog(pid, CREATE, flags->line_args);
     }
@@ -199,8 +198,6 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
 
     tmp_flags.linked = 1;
 
-    setupProcessHandlers();
-
     pid_t pid = fork();
     if (pid == -1)
     {
@@ -209,15 +206,17 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
     }
     else if (pid == 0)
     { // child enters inside the new directory
+        setupProcessHandlers();
+        if (!childrenpg)
+            childrenpg = getpid();
+
         tmp_flags.current_depth++;
 
-        setupProcessHandlers();
         simpledu(&tmp_flags, new_fd);
     }
     else
     { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
-        if (getpid() == first)
-            setupParentHandlers();
+        setChildrenGroup(pid);
 
         entryLog(pid, CREATE, flags->line_args);
     }

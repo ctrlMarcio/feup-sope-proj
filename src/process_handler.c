@@ -9,7 +9,7 @@ struct sigaction defaultsuspend;
 
 void sig_int(int signo)
 {
-    kill(0, SIGTSTP);
+    killpg(childrenpg, SIGSTOP);
     char buffer[2];
     write(STDOUT_FILENO, "Do you really want to stop the program? (Y/N) ", 46);
     read(STDIN_FILENO, &buffer, 2);
@@ -22,18 +22,17 @@ void sig_int(int signo)
 
     if (*buffer == y_ASCII || *buffer == Y_ASCII)
     {
-        kill(0, SIGTERM);
+        killpg(childrenpg, SIGTERM);
+        killpg(0, SIGTERM);
     }
     else
     {
-        kill(0, SIGCONT);
+        killpg(childrenpg, SIGCONT);
     }
 }
 
 void setupProcessHandlers()
 {
-    sigaction(SIGTSTP, &defaultsuspend, NULL);
-
     struct sigaction action;
     action.sa_handler = SIG_IGN;
     sigemptyset(&action.sa_mask);
@@ -43,16 +42,22 @@ void setupProcessHandlers()
 
 void setupParentHandlers()
 {
-
     struct sigaction action;
     action.sa_handler = sig_int;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
     sigaction(SIGINT, &action, NULL);
+}
 
-    struct sigaction suspend;
-    suspend.sa_handler = SIG_IGN;
-    sigemptyset(&suspend.sa_mask);
-    suspend.sa_flags = 0;
-    sigaction(SIGTSTP, &suspend, &defaultsuspend);
+void setChildrenGroup(pid_t pid)
+{
+    if (!childrenpg)
+    {
+        childrenpg = pid;
+        setpgid(pid, pid);
+    }
+    else
+    {
+        setpgid(pid, childrenpg);
+    }
 }

@@ -10,7 +10,10 @@
 #include <signal.h>
 #include <string.h>
 
+pid_t childrenpg;
+
 void setupProcessHandlers();
 void setupParentHandlers();
+void setChildrenGroup(pid_t);
 
 #endif
