@@ -32,21 +32,19 @@ void run(struct flags *flags)
 
     if (pid == 0)
     {
-        init();
-        setupChild();
+        setupProcessHandlers();
         simpledu(flags, fd);
         exit(0);
     }
     else
     {
-        setup();
-        addProcess(pid);
+        setupParentHandlers();
 
-        waitpid(pid, NULL, 0);
+        while (waitpid(pid, NULL, 0) == -1);
     }
 }
 
-// Each simpledu calls correponds a directory
+// Each simpledu calls correponds to a directory
 void simpledu(struct flags *flags, int *old_fd)
 {
     struct dirent *dirent;
@@ -149,7 +147,6 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     }
     else if (pid == 0)
     { // child enters inside the new directory
-        setupChild();
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
@@ -163,7 +160,6 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     }
     else
     { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
-        addProcess(pid);
         entryLog(pid, CREATE, flags->line_args);
         //FIXME between this and read at the end of closeDir, delete if decided at the end of closeDir, there's a FIXME there
         /*int tmp;
@@ -224,7 +220,6 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
     { // child enters inside the new directory
         tmp_flags.current_depth++;
 
-        setupChild();
         simpledu(&tmp_flags, new_fd);
     }
     else
@@ -256,8 +251,6 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
     // waits for remaining files
     while ((pid = wait(&status)) > 0)
     {
-        removeProcess(pid);
-
         char line[32];
         sprintf(line, "termination code %d", WEXITSTATUS(status));
         entryLog(pid, EXIT, line);
