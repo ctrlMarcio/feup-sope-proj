@@ -10,6 +10,7 @@
 #include "error.h"
 #include "logger.h"
 #include "ui.h"
+#include "process_handler.h"
 
 #define READ 0
 #define WRITE 1
@@ -26,7 +27,23 @@ void run(struct flags *flags)
 {
     int fd[2];
     pipe(fd);
-    simpledu(flags, fd);
+
+    pid_t pid = fork();
+
+    if (pid == 0)
+    {
+        setupChild();
+        simpledu(flags, fd);
+        exit(0);
+    }
+    else
+    {
+        printf("\nPID: %d\n", pid);
+        setup();
+        addProcess(pid);
+
+        waitpid(pid, NULL, 0);
+    }
 }
 
 // Each simpledu calls correponds a directory
@@ -101,7 +118,8 @@ void simpledu(struct flags *flags, int *old_fd)
             }
             else
             {
-                if (contains((int) stat_entry.st_ino, flags->inodes_read, flags->inodes_read_size)) exit(0);
+                if (contains((int)stat_entry.st_ino, flags->inodes_read, flags->inodes_read_size))
+                    exit(0);
 
                 flags->inodes_read[flags->inodes_read_size++] = stat_entry.st_ino;
 
@@ -131,6 +149,7 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     }
     else if (pid == 0)
     { // child enters inside the new directory
+        setupChild();
         struct flags tmp_flags = *flags;
         strcat(tmp_flags.path, "/");
         strcat(tmp_flags.path, dirent->d_name);
@@ -144,6 +163,7 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     }
     else
     { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
+        addProcess(pid);
         entryLog(pid, CREATE, flags->line_args);
         //FIXME between this and read at the end of closeDir, delete if decided at the end of closeDir, there's a FIXME there
         /*int tmp;
@@ -204,6 +224,7 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
     { // child enters inside the new directory
         tmp_flags.current_depth++;
 
+        setupChild();
         simpledu(&tmp_flags, new_fd);
     }
     else
@@ -235,6 +256,8 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
     // waits for remaining files
     while ((pid = wait(&status)) > 0)
     {
+        removeProcess(pid);
+
         char line[32];
         sprintf(line, "termination code %d", WEXITSTATUS(status));
         entryLog(pid, EXIT, line);
