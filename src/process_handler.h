@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include <string.h>
 
@@ -12,6 +13,7 @@ pid_t pids[PROCESS_ARRAY_SIZE];
 
 int process_count;
 
+void init();
 void setup();
 void setupChild();
 

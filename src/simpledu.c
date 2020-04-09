@@ -32,13 +32,13 @@ void run(struct flags *flags)
 
     if (pid == 0)
     {
+        init();
         setupChild();
         simpledu(flags, fd);
         exit(0);
     }
     else
     {
-        printf("\nPID: %d\n", pid);
         setup();
         addProcess(pid);
 

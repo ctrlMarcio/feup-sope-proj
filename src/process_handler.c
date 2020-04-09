@@ -11,9 +11,6 @@ int process_count = 0;
 
 void sig_int(int signo)
 {
-    printf("\n\nTEST0\n\n");
-    suspendProcesses();
-
     char buffer;
     write(STDOUT_FILENO, "Do you really want to stop the program? (Y/N) ", 46);
     read(STDIN_FILENO, &buffer, 1);
@@ -26,30 +23,54 @@ void sig_int(int signo)
 
     if (buffer == y_ASCII || buffer == Y_ASCII)
     {
-        stopProcesses();
+        //stopProcesses();
+        killpg(0, SIGKILL);
     }
     else
     {
-        resumeProcesses();
+        //resumeProcesses();
+        killpg(0, SIGCONT);
     }
 }
 
 void sig_tstp(int signo)
 {
-    printf("\n\nTEST1\n\n");
-    suspendProcesses();
-    printf("\n\nTEST2\n\n");
     sigset_t sigmask;
-    sigfillset(&sigmask);
-    sigdelset(&sigmask, SIGCONT);
+    sigemptyset(&sigmask);
 
     sigsuspend(&sigmask);
-    printf("\n\nTEST3\n\n");
 }
 
 void sig_cont(int signo)
 {
     resumeProcesses();
+}
+
+void sig_die(int signo)
+{
+    stopProcesses();
+}
+
+void init() {
+    struct sigaction suspend;
+    suspend.sa_handler = sig_tstp;
+    sigemptyset(&suspend.sa_mask);
+    suspend.sa_flags = 0;
+    sigaction(SIGINT, &suspend, NULL);
+
+/*
+    struct sigaction cont;
+    cont.sa_handler = sig_cont;
+    sigemptyset(&cont.sa_mask);
+    cont.sa_flags = 0;
+    sigaction(SIGCONT, &cont, NULL);
+
+    struct sigaction stop;
+    stop.sa_handler = sig_die;
+    sigemptyset(&stop.sa_mask);
+    stop.sa_flags = 0;
+    sigaction(SIGUSR1, &stop, NULL);
+    */
 }
 
 void setup()
@@ -63,21 +84,9 @@ void setup()
 
 void setupChild()
 {
-    memset(pids, 0, sizeof pids);
+    memset(pids, 0, process_count);
 
     process_count = 0;
-
-    struct sigaction suspend;
-    suspend.sa_handler = sig_tstp;
-    sigemptyset(&suspend.sa_mask);
-    suspend.sa_flags = 0;
-    sigaction(SIGTSTP, &suspend, NULL);
-
-    struct sigaction cont;
-    cont.sa_handler = sig_cont;
-    sigemptyset(&cont.sa_mask);
-    cont.sa_flags = 0;
-    sigaction(SIGCONT, &cont, NULL);
 }
 
 void addProcess(pid_t pid)
@@ -110,23 +119,18 @@ int getProcessIndex(pid_t pid)
     return -1;
 }
 
-void suspendProcesses()
-{
-    for (int i = 0; i < process_count; ++i)
-    {
-        printf("\n\nTEST: %d\n\n", pids[i]);
-        kill(pids[i], SIGTSTP);
-    }
-}
-
 void resumeProcesses()
 {
-    for (int i = 0; i < process_count; ++i)
+    for (int i = 0; i < process_count; ++i) {
         kill(pids[i], SIGCONT);
+    }
 }
 
 void stopProcesses()
 {
-    for (int i = 0; i < process_count; ++i)
+    for (int i = 0; i < process_count; ++i) {
+        kill(pids[i], SIGCONT); 
         kill(pids[i], SIGKILL);
+        
+    }
 }
