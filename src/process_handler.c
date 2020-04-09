@@ -5,6 +5,8 @@
 #define n_ASCII 110
 #define N_ASCII 78
 
+struct sigaction defaultsuspend;
+
 void sig_int(int signo)
 {
     kill(0, SIGTSTP);
@@ -20,7 +22,7 @@ void sig_int(int signo)
 
     if (*buffer == y_ASCII || *buffer == Y_ASCII)
     {
-        kill(0, SIGKILL);
+        kill(0, SIGTERM);
     }
     else
     {
@@ -28,16 +30,20 @@ void sig_int(int signo)
     }
 }
 
-void setupProcessHandlers() {
-    struct sigaction suspend;
-    suspend.sa_handler = SIG_IGN;
-    sigemptyset(&suspend.sa_mask);
-    suspend.sa_flags = 0;
-    sigaction(SIGINT, &suspend, NULL);
+void setupProcessHandlers()
+{
+    sigaction(SIGTSTP, &defaultsuspend, NULL);
+
+    struct sigaction action;
+    action.sa_handler = SIG_IGN;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction(SIGINT, &action, NULL);
 }
 
 void setupParentHandlers()
 {
+
     struct sigaction action;
     action.sa_handler = sig_int;
     sigemptyset(&action.sa_mask);
@@ -48,5 +54,5 @@ void setupParentHandlers()
     suspend.sa_handler = SIG_IGN;
     sigemptyset(&suspend.sa_mask);
     suspend.sa_flags = 0;
-    sigaction(SIGTSTP, &suspend, NULL);
+    sigaction(SIGTSTP, &suspend, &defaultsuspend);
 }
