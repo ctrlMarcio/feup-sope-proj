@@ -57,7 +57,7 @@ simpledu [OPTIONS]
 
 ### Log file
 
-The operations done while the program is running are reported in a log file. The log file is created with the name of the environment variable named `LOG_FILENAME`, or the default name 'logfile.log'.
+The operations done while the program is running are reported in a log file. The log file is created with the name of the environment variable named `LOG_FILENAME`, or the default name '../logfile.log'.
 
 For each execution, a header is written with the following structure:
 > Program executed at HH:mm, DD/MM/YYYY
@@ -86,16 +86,16 @@ with:
 
 | **Feature** | Status | Additional info |
 | -------------- | :--------: |------------|
-| Argument reading and processing | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen)| N/a |
-| Different exit code for each error | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a |
-| Dereference links | ![https://img.shields.io/badge/great-%20-yellowgreen](https://img.shields.io/badge/great-%20-yellowgreen) | Not working if a loop occurs|
-| Specify the max depth of the search| ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
-| Directory and file size communication with pipes| ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
-| Directory handling with different a processes | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a|
-| Show all files and directories (option -a) | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) | N/a |
-| Signal handling | ![https://img.shields.io/badge/ok-%20-yellow](https://img.shields.io/badge/ok-%20-yellow) |N/a|
-| Log information | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) |N/a|
-| Different size according to block size or bytes | ![https://img.shields.io/badge/good-%20-brightgreen](https://img.shields.io/badge/good-%20-brightgreen) |N/a|
+| Argument reading and processing | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen)| N/a |
+| Different exit code for each error | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a |
+| Dereference links | ![https://img.shields.io/badge/good-%20-yellowgreen](https://img.shields.io/badge/good-%20-yellowgreen) | Not working if a loop occurs|
+| Specify the max depth of the search| ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a|
+| Directory and file size communication with pipes| ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a|
+| Directory handling with different a processes | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a|
+| Show all files and directories (option -a) | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a |
+| Signal handling | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) |N/a|
+| Log information | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) |N/a|
+| Different size according to block size or bytes | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) |N/a|
 
 ## Authors
 

@@ -11,11 +11,13 @@
 
 #define MAX_HEADER_SIZE 512
 
-char FILENAME[] = "logfile.log";
+char FILENAME[] = "../logfile.log";
 
 struct timespec START_TIME;
 
 int LOGGER_FD;
+
+void logEntry(struct flags *flags, long size, char *name);
 
 void setupLogger()
 {
@@ -44,4 +46,55 @@ void entryLog(int pid, char *action, char *info)
     sprintf(logentry, "%.2f ms: PID %08d. Action: %s. Additional info: %s\n", getElapsedTimeInMillis(START_TIME), pid, action, info);
 
     write(LOGGER_FD, logentry, strlen(logentry));
+}
+
+void logEntry(struct flags *flags, long size, char *name)
+{
+    if (!flags->bytes)
+        size /= flags->block_size;
+    char log_entry[128];
+    sprintf(log_entry, "%-ld\t%s", size, name);
+
+    entryLog(getpid(), ENTRY, log_entry);
+}
+
+void logCreate(struct flags *flags)
+{
+    entryLog(getpid(), CREATE, flags->line_args);
+}
+
+void logExit(int status)
+{
+    char line[32];
+    sprintf(line, "termination code %d", WEXITSTATUS(status));
+    entryLog(getpid(), EXIT, line);
+}
+
+void logRecvPipe(int size)
+{
+    char log_entry[32];
+    sprintf(log_entry, "%d", size);
+
+    entryLog(getpid(), RECV_PIPE, log_entry);
+}
+
+void logSendPipe(int size)
+{
+    char log_entry[32];
+    sprintf(log_entry, "%d", size);
+    entryLog(getpid(), SEND_PIPE, log_entry);
+}
+
+void logRecvSignal(int signal)
+{
+    char log_entry[32];
+    sprintf(log_entry, "%d", signal);
+    entryLog(getpid(), RECV_SIGNAL, log_entry);
+}
+
+void logSendSignal(int signal, pid_t pid)
+{
+    char log_entry[64];
+    sprintf(log_entry, "Signal: %d, Destination PID: %d", signal, pid);
+    entryLog(getpid(), SEND_SIGNAL, log_entry);
 }

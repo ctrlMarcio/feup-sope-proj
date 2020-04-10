@@ -91,6 +91,8 @@ void simpledu(struct flags *flags, int *old_fd)
             total_size += stat_entry.st_size;
             if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
                 printFile(dirent->d_name, flags, stat_entry.st_size);
+
+            logEntry(flags, stat_entry.st_size, file);
         }
         else if (S_ISLNK(stat_entry.st_mode)) // when the entry is a link
         {
@@ -133,7 +135,7 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
         exit(FORK_ERROR);
     }
     else if (pid == 0)
-    { // child enters inside the new directory
+    {                           // child enters inside the new directory
         setupProcessHandlers(); // sets the current handlers
 
         // sets the children group if it is not set already
@@ -156,7 +158,7 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
     { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
         setChildrenGroup(pid);
 
-        entryLog(pid, CREATE, flags->line_args);
+        logCreate(flags);
     }
 
     return pid;
@@ -218,7 +220,7 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
     { // parent waits for child to end, reads its size from the new pipe, and updates the total_size
         setChildrenGroup(pid);
 
-        entryLog(pid, CREATE, flags->line_args);
+        logCreate(flags);
     }
 
     return pid;
@@ -245,17 +247,15 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
     // waits for remaining files
     while ((pid = wait(&status)) > 0)
     {
-        char line[32];
-        sprintf(line, "termination code %d", WEXITSTATUS(status));
-        entryLog(pid, EXIT, line);
-
+        logExit(status);
         // reads all the sizes from the subdirs
         read(new_fd[READ], &tmp, sizeof(int));
+
+        logRecvPipe(tmp);
 
         // if separate dirs is deactivated, counts the size to the total size
         if (!flags->separate_dirs)
             *total_size += tmp;
-        // TODO log RECV_PIPE
     }
 
     // if the max depth was not reached already, prints the directory
@@ -264,5 +264,6 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
 
     // writes its total size in the pipe so the above directory can count it
     write(old_fd[WRITE], total_size, sizeof(int));
-    // TODO log SEND_PIPE
+
+    logSendPipe(*total_size);
 }
