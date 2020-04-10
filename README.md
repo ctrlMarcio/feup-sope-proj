@@ -42,15 +42,15 @@ simpledu [OPTIONS]
   * not including the -l flag;
   * invalid block size;
   * invalid depth.
-* **2** - _directory error_, error in the directories:
+* **1** - _directory error_, error in the directories:
   * permission denied;
   * directory not existent;
   * [etc](http://man7.org/linux/man-pages/man3/opendir.3.html).
-* **3** - _pipe error_, error creating pipes:
+* **2** - _pipe error_, error creating pipes:
   * limit of file descriptors reached;
   * max memory allocated for pipes reached;
   * [etc](http://man7.org/linux/man-pages/man2/pipe.2.html).
-* **4** - _fork error_, error forking processes:
+* **3** - _fork error_, error forking processes:
   * max allowed amount of threads reached;
   * fork is not supported on this platform;
   * [etc](http://man7.org/linux/man-pages/man2/fork.2.html).

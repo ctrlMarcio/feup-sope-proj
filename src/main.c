@@ -111,9 +111,9 @@ void readCmd(int argc, char *argv[], int first_arg)
     if (!strcmp(argv[arg], "-B"))
     {
         flags.block_size = atoi(argv[++arg]);
-        if (flags.block_size == 0) // invalid value
+        if (flags.block_size <= 0) // invalid value
         {
-            printf("%s in an invalid block size.\n", argv[arg]);
+            printf("%s is an invalid block size.\n", argv[arg]);
             exit(ARGS_ERROR);
         }
         readCmd(argc, argv, ++arg);
@@ -129,9 +129,9 @@ void readCmd(int argc, char *argv[], int first_arg)
     if (split(tempstr, tmp, "=") == 2 && !strcmp(tmp[0], "--block-size"))
     {
         flags.block_size = atoi(tmp[1]);
-        if (flags.block_size == 0) // invalid value
+        if (flags.block_size <= 0) // invalid value
         {
-            printf("%s in an invalid block size.\n", tmp[1]);
+            printf("%s is an invalid block size.\n", tmp[1]);
             exit(ARGS_ERROR);
         }
         readCmd(argc, argv, ++arg);
@@ -162,9 +162,9 @@ void readCmd(int argc, char *argv[], int first_arg)
     if (split(tempstr, tmp, "=") == 2 && !strcmp(tmp[0], "--max-depth"))
     {
         flags.max_depth = atoi(tmp[1]);
-        if (flags.max_depth == 0) // invalid value
+        if (flags.max_depth <= 0) // invalid value
         {
-            printf("%s in an invalid depth.\n", tmp[1]);
+            printf("%s is an invalid depth.\n", tmp[1]);
             exit(ARGS_ERROR);
         }
         readCmd(argc, argv, ++arg);

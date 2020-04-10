@@ -243,7 +243,6 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
 
     int tmp;
 
-    //FIXME between this and read at the end of treatDir, delete if decided at the end of treatDir, there's a FIXME there
     // waits for remaining files
     while ((pid = wait(&status)) > 0)
     {

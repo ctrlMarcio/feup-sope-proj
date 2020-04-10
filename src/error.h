@@ -19,16 +19,16 @@
  * @brief Error related to directories.
  * 
  */
-#define DIR_ERROR 2
+#define DIR_ERROR 1
 /**
  * @brief Error related to pipes.
  * 
  */
-#define PIPE_ERROR 3
+#define PIPE_ERROR 2
 /**
  * @brief Error related to forks.
  * 
  */
-#define FORK_ERROR 4
+#define FORK_ERROR 3
 
 #endif
