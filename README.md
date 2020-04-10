@@ -1,6 +1,6 @@
 # feup-sope-proj
 
-![C/C++ CI Build 🔨](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Build%20%F0%9F%94%A8/badge.svg) ![C/C++ CI Documentation 📚](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Documentation%20%F0%9F%93%9A/badge.svg) ![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
+![C/C++ CI Build](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Build/badge.svg) [![C/C++ CI Documentation](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Documentation/badge.svg)](https://ctrlmarcio.github.io/feup-sope-proj/) ![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
 
 Resolution proposal of the project from the course unit Operating Systems.
 
