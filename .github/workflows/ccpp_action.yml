@@ -13,13 +13,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Doxygen
+      run: cd doc && doxygen Doxyfile && cd ..
     - name: make
       run: make
-    - name: Doxygen Action
-      uses: mattnotmitt/doxygen-action@v1.1.0
-      with:
-        working-directory: '.'
-        doxyfile-path: 'doc/Doxyfile'
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
