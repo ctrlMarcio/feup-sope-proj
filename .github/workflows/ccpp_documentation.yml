@@ -1,4 +1,4 @@
-name: 📚 C/C++ CI Documentation
+name: C/C++ CI Documentation
 
 on:
   push:
