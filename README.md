@@ -109,4 +109,3 @@ with:
 ## Disclaimer
 
 This repository contains the solution proposed by the authors and might contain errors as well as lack of efficiency.
-The first release is set to 10/04/2020
