@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C/C++ CI Documentation 📚
 
 on:
   push:
@@ -20,8 +20,6 @@ jobs:
       run: |
             sudo apt install doxygen
             cd doc && doxygen Doxyfile && cd ..
-    - name: make
-      run: make
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
