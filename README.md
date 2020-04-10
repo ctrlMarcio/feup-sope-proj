@@ -1,6 +1,6 @@
 # feup-sope-proj
 
-![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
+![C/C++ CI](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI/badge.svg) ![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
 
 Resolution proposal of the project from the course unit Operating Systems.
 
