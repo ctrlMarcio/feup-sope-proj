@@ -11,8 +11,10 @@
 #define TRUE 1
 #define FALSE 0
 
+// the name of the environment variable that contains the path to the log file
 #define LOG_FILENAME_ENV "LOG_FILENAME"
 
+// initialization of the flags
 struct flags flags = {FALSE, ".", FALSE, FALSE, 1024, FALSE, FALSE, -1, 1, "", FALSE, "", {0}, 0};
 
 char *readArgs(int argc, char *argv[]);
@@ -32,11 +34,11 @@ int main(int argc, char *argv[])
 }
 
 /**
- * Reads the args and environment variables, filling the respective flags
+ * @brief   Reads the args and environment variables, filling the respective flags
  * 
  * @param argc
  * @param argv
- * @return              a string with all the args to free later
+ * @return          a string with all the args to free later
  */
 char *readArgs(int argc, char *argv[])
 {
@@ -67,7 +69,7 @@ char *readArgs(int argc, char *argv[])
 }
 
 /**
- * Reads the args from the command line
+ * @brief   Reads the args from the command line
  * 
  * @param argc          the total amount of args
  * @param argv          the arguments

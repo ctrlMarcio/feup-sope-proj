@@ -17,7 +17,7 @@ struct timespec START_TIME;
 
 int LOGGER_FD;
 
-void logEntry(struct flags *flags, long size, char *name);
+void entryLog(int pid, char *action, char *info);
 
 void setupLogger()
 {

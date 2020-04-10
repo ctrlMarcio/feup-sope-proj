@@ -1,3 +1,11 @@
+/**
+ * @file    ui.h
+ * @author  Luís Tavares
+ * @author  Márcio Duarte
+ * @brief   Responsible for printing to the STDOUT the results of the program.
+ * 
+ */
+
 #ifndef UI_H
 #define UI_H
 
@@ -6,7 +14,7 @@
 #include "util.h"
 
 /**
- * Prints a regular file according to the flags
+ * @brief   Prints a regular file according to the flags.
  * 
  * @param name      the name of the file
  * @param flags     the executable's flags
@@ -15,7 +23,7 @@
 void printFile(char *name, struct flags *flags, long size);
 
 /**
- * Prints a directory according to the flags
+ * @brief   Prints a directory according to the flags.
  * 
  * @param name      the name of the directory
  * @param flags     the executable's flags
@@ -24,7 +32,7 @@ void printFile(char *name, struct flags *flags, long size);
 void printDir(char *name, struct flags *flags, long size);
 
 /**
- * Prints a directory according to the flags
+ * @breif   Prints a directory according to the flags.
  * 
  * @param name      the name of the directory
  * @param flags     the executable's flags

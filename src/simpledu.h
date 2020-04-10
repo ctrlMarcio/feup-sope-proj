@@ -1,3 +1,11 @@
+/**
+ * @file    simpledu.h
+ * @author  Luís Tavares
+ * @author  Márcio Duarte
+ * @brief   Runs the main recursive function.
+ * 
+ */
+
 #ifndef SIMPLEDU_H
 #define SIMPLEDU_H
 
@@ -8,9 +16,10 @@
 #include "util.h"
 
 /**
- * Creates a pipe and runs
+ * @brief   Runs the program itself, setting the first pipe and running the recursive function.
+ * @warning It is expected that the flags (passed as argument), are already filled.
  * 
- * @param flags
+ * @param flags     the current flags of the program
  */
 void run(struct flags *flags);
 
