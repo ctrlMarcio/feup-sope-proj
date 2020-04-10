@@ -109,3 +109,5 @@ with:
 ## Disclaimer
 
 This repository contains the solution proposed by the authors and might contain errors as well as lack of efficiency.
+
+The first release was on 10/04/2020 and a second one is expected whenever the assignment comes.
