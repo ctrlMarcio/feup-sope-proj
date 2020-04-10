@@ -1,4 +1,4 @@
-name: C/C++ CI Release 📚
+name: C/C++ CI Release 💾  
 
 on:
   push:
