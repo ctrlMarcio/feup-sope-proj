@@ -20,7 +20,7 @@
  * @param flags     the executable's flags
  * @param size      the size of the file, in bytes
  */
-void printFile(char *name, struct flags *flags, long size);
+void printFile(char *name, struct flags *flags, double size);
 
 /**
  * @brief   Prints a directory according to the flags.
@@ -29,7 +29,7 @@ void printFile(char *name, struct flags *flags, long size);
  * @param flags     the executable's flags
  * @param size      the total size of the directory, in bytes
  */
-void printDir(char *name, struct flags *flags, long size);
+void printDir(char *name, struct flags *flags, double size);
 
 /**
  * @breif   Prints a directory according to the flags.
@@ -38,6 +38,6 @@ void printDir(char *name, struct flags *flags, long size);
  * @param flags     the executable's flags
  * @param size      the total size of the directory, in bytes
  */
-void printLink(char *name, struct flags *flags, long size);
+void printLink(char *name, struct flags *flags, double size);
 
 #endif

@@ -20,8 +20,8 @@
 
 void simpledu(struct flags *flags, int *fd);
 pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent);
-pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *line, int *total_size);
-void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *total_size);
+pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *line, double *total_size);
+void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, double *total_size);
 
 void run(struct flags *flags)
 {
@@ -37,7 +37,7 @@ void simpledu(struct flags *flags, int *old_fd)
     struct dirent *dirent;
     struct stat stat_entry;
     DIR *dir;
-    int total_size = 0;
+    double total_size = 0;
 
     // opens the directory with the name given on path (always updated)
     if ((dir = opendir(flags->path)) == NULL)
@@ -70,7 +70,14 @@ void simpledu(struct flags *flags, int *old_fd)
             // starts the conting of the directory size at the "." subidr, this is, first of all counts the size of the actual directroy
             if (!strcmp(dirent->d_name, "."))
             {
-                total_size += stat_entry.st_size;
+                if (!flags->bytes)
+                {
+                    total_size += stat_entry.st_blocks / 2.0;
+                }
+                else
+                {
+                    total_size += stat_entry.st_size;
+                }
                 continue;
             }
 
@@ -88,9 +95,19 @@ void simpledu(struct flags *flags, int *old_fd)
         else if (S_ISREG(stat_entry.st_mode)) // when the entry is a file
         {
             // updates the size and prints it if the max depth was not reached already
-            total_size += stat_entry.st_size;
+            double size;
+            if (!flags->bytes)
+            {
+                size = stat_entry.st_blocks / 2.0;
+                total_size += size;
+            }
+            else
+            {
+                size = stat_entry.st_size;
+                total_size += size;
+            }
             if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
-                printFile(dirent->d_name, flags, stat_entry.st_size);
+                printFile(dirent->d_name, flags, size);
 
             logEntry(flags, stat_entry.st_size, file);
         }
@@ -99,9 +116,19 @@ void simpledu(struct flags *flags, int *old_fd)
             // If the links flag is off the link must be treated as a file
             if (!flags->dereference)
             {
-                total_size += stat_entry.st_size;
+                double size;
+                if (!flags->bytes)
+                {
+                    size = stat_entry.st_blocks / 2.0;
+                    total_size += size;
+                }
+                else
+                {
+                    size = stat_entry.st_size;
+                    total_size += size;
+                }
                 if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
-                    printFile(dirent->d_name, flags, stat_entry.st_size);
+                    printFile(dirent->d_name, flags, size);
             }
             else
             {
@@ -169,7 +196,7 @@ pid_t treatDir(int *new_fd, struct flags *flags, struct dirent *dirent)
  *
  * @return      the process id (will return two)
  */
-pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *file, int *total_size)
+pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *file, double *total_size)
 {
     char linkpath_buffer[MAX_DIR_NAME_SIZE];
     int linkpath_bytes = readlink(file, linkpath_buffer, MAX_DIR_NAME_SIZE);
@@ -190,10 +217,20 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
 
     if (S_ISREG(stat_entry.st_mode)) // when the entry is a file
     {
-        *total_size += stat_entry.st_size;
+        double size;
+        if (!flags->bytes)
+        {
+            size = stat_entry.st_blocks / 2;
+            *total_size += size;
+        }
+        else
+        {
+            size = stat_entry.st_size;
+            *total_size += size;
+        }
         if (!(flags->current_depth > flags->max_depth && flags->max_depth > 0))
         {
-            printLink(file, &tmp_flags, stat_entry.st_size);
+            printLink(file, &tmp_flags, size);
         }
         return getpid();
     }
@@ -229,7 +266,7 @@ pid_t treatLink(int *new_fd, struct flags *flags, struct dirent *dirent, char *f
 /**
  * Counts the size of all subdirectories, prints the current directory information and closes it
  */
-void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *total_size)
+void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, double *total_size)
 {
     // closes the directory
     if (closedir(dir) == -1)
@@ -241,14 +278,14 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
     int status;
     int pid;
 
-    int tmp;
+    double tmp;
 
     // waits for remaining files
     while ((pid = wait(&status)) > 0)
     {
         logExit(status);
         // reads all the sizes from the subdirs
-        read(new_fd[READ], &tmp, sizeof(int));
+        read(new_fd[READ], &tmp, sizeof(double));
 
         logRecvPipe(tmp);
 
@@ -262,7 +299,7 @@ void closeDir(int *old_fd, int *new_fd, DIR *dir, struct flags *flags, int *tota
         printDir(flags->path, flags, *total_size);
 
     // writes its total size in the pipe so the above directory can count it
-    write(old_fd[WRITE], total_size, sizeof(int));
+    write(old_fd[WRITE], total_size, sizeof(double));
 
     logSendPipe(*total_size);
 }

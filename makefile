@@ -7,4 +7,4 @@ FILES = $(SRC_DIR)/main.c $(SRC_DIR)/util.c $(SRC_DIR)/simpledu.c $(SRC_DIR)/log
 
 make: ${FILES}
 	@mkdir -p $(BIN_DIR)
-	@$(CC) -Wall -o $(BIN_DIR)/simpledu ${FILES}
+	@$(CC) -Wall -o $(BIN_DIR)/simpledu ${FILES} -lm
