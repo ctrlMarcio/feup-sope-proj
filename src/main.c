@@ -110,6 +110,11 @@ void readCmd(int argc, char *argv[], int first_arg)
         return;
     if (!strcmp(argv[arg], "-B"))
     {
+        if (arg + 1 >= argc)
+        {
+            printf("Invalid block size.\n");
+            exit(ARGS_ERROR);
+        }
         flags.block_size = atoi(argv[++arg]);
         if (flags.block_size <= 0) // invalid value
         {

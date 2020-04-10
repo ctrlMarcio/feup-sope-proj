@@ -95,7 +95,7 @@ with:
 | Show all files and directories (option -a) | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a |
 | Signal handling | ![https://img.shields.io/badge/good-%20-yellowgreen](https://img.shields.io/badge/good-%20-yellowgreen) |N/a|
 | Log information | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) |N/a|
-| Different size according to block size or bytes | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) |Different implementation of -B|
+| Different size according to block size or bytes | ![https://img.shields.io/badge/great-%20-brightgreen](https://img.shields.io/badge/great-%20-brightgreen) | N/a |
 
 ## Authors
 
