@@ -1,0 +1,88 @@
+\hypertarget{ui_8h}{}\section{/home/runner/work/feup-\/sope-\/proj/feup-\/sope-\/proj/src/ui.h File Reference}
+\label{ui_8h}\index{/home/runner/work/feup-\/sope-\/proj/feup-\/sope-\/proj/src/ui.\+h@{/home/runner/work/feup-\/sope-\/proj/feup-\/sope-\/proj/src/ui.\+h}}
+
+
+Responsible for printing to the S\+T\+D\+O\+UT the results of the program.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}util.\+h\char`\"{}}\newline
+Include dependency graph for ui.\+h\+:
+% FIG 0
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{ui_8h_a8a1a043014fca00204763cad224d3e4b}{print\+File} (char $\ast$name, struct \hyperlink{structflags}{flags} $\ast$\hyperlink{structflags}{flags}, long size)
+\begin{DoxyCompactList}\small\item\em Prints a regular file according to the flags. \end{DoxyCompactList}\item 
+void \hyperlink{ui_8h_a49ebd3f681a4b13668f54da99f5460d9}{print\+Dir} (char $\ast$name, struct \hyperlink{structflags}{flags} $\ast$\hyperlink{structflags}{flags}, long size)
+\begin{DoxyCompactList}\small\item\em Prints a directory according to the flags. \end{DoxyCompactList}\item 
+void \hyperlink{ui_8h_acd0dc9fd09f0a4ee1686f3074e449719}{print\+Link} (char $\ast$name, struct \hyperlink{structflags}{flags} $\ast$\hyperlink{structflags}{flags}, long size)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Responsible for printing to the S\+T\+D\+O\+UT the results of the program. 
+
+\begin{DoxyAuthor}{Author}
+Luís Tavares 
+
+Márcio Duarte 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{ui_8h_a49ebd3f681a4b13668f54da99f5460d9}\label{ui_8h_a49ebd3f681a4b13668f54da99f5460d9}} 
+\index{ui.\+h@{ui.\+h}!print\+Dir@{print\+Dir}}
+\index{print\+Dir@{print\+Dir}!ui.\+h@{ui.\+h}}
+\subsubsection{\texorpdfstring{print\+Dir()}{printDir()}}
+{\footnotesize\ttfamily void print\+Dir (\begin{DoxyParamCaption}\item[{char $\ast$}]{name,  }\item[{struct \hyperlink{structflags}{flags} $\ast$}]{flags,  }\item[{long}]{size }\end{DoxyParamCaption})}
+
+
+
+Prints a directory according to the flags. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the directory \\
+\hline
+{\em flags} & the executable\textquotesingle{}s flags \\
+\hline
+{\em size} & the total size of the directory, in bytes \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{ui_8h_a8a1a043014fca00204763cad224d3e4b}\label{ui_8h_a8a1a043014fca00204763cad224d3e4b}} 
+\index{ui.\+h@{ui.\+h}!print\+File@{print\+File}}
+\index{print\+File@{print\+File}!ui.\+h@{ui.\+h}}
+\subsubsection{\texorpdfstring{print\+File()}{printFile()}}
+{\footnotesize\ttfamily void print\+File (\begin{DoxyParamCaption}\item[{char $\ast$}]{name,  }\item[{struct \hyperlink{structflags}{flags} $\ast$}]{flags,  }\item[{long}]{size }\end{DoxyParamCaption})}
+
+
+
+Prints a regular file according to the flags. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the file \\
+\hline
+{\em flags} & the executable\textquotesingle{}s flags \\
+\hline
+{\em size} & the size of the file, in bytes \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{ui_8h_acd0dc9fd09f0a4ee1686f3074e449719}\label{ui_8h_acd0dc9fd09f0a4ee1686f3074e449719}} 
+\index{ui.\+h@{ui.\+h}!print\+Link@{print\+Link}}
+\index{print\+Link@{print\+Link}!ui.\+h@{ui.\+h}}
+\subsubsection{\texorpdfstring{print\+Link()}{printLink()}}
+{\footnotesize\ttfamily void print\+Link (\begin{DoxyParamCaption}\item[{char $\ast$}]{name,  }\item[{struct \hyperlink{structflags}{flags} $\ast$}]{flags,  }\item[{long}]{size }\end{DoxyParamCaption})}
+
+Prints a directory according to the flags.
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the directory \\
+\hline
+{\em flags} & the executable\textquotesingle{}s flags \\
+\hline
+{\em size} & the total size of the directory, in bytes \\
+\hline
+\end{DoxyParams}
