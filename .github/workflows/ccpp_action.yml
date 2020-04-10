@@ -8,13 +8,15 @@ on:
 
 jobs:
   build:
-
+     
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
     - name: Doxygen
-      run: cd doc && doxygen Doxyfile && cd ..
+      run: |
+            sudo apt install doxygen
+            cd doc && doxygen Doxyfile && cd ..
     - name: make
       run: make
     - name: Deploy
