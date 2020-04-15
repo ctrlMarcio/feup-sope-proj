@@ -1,8 +1,8 @@
-# feup-sope-proj
+# feup-sope-proj1
 
 ![C/C++ CI Build](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Build/badge.svg) [![C/C++ CI Documentation](https://github.com/ctrlMarcio/feup-sope-proj/workflows/C/C++%20CI%20Documentation/badge.svg)](https://ctrlmarcio.github.io/feup-sope-proj/) ![GCC version](https://img.shields.io/badge/gcc-7.4.0-green) ![bash version](https://img.shields.io/badge/bash-4.4.19-lightgrey)
 
-Resolution proposal of the project from the course unit Operating Systems.
+Resolution proposal of the first project of the Operating Systems course unit.
 
 The goal is to make a **C** program based to do the exactly same thing as the `du` command of the Unix Shell, using the Unix API for C.
 
@@ -109,5 +109,3 @@ with:
 ## Disclaimer
 
 This repository contains the solution proposed by the authors and might contain errors as well as lack of efficiency.
-
-The first release was on 10/04/2020 and a second one is expected whenever the assignment comes.
